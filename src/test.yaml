@@ -1,0 +1,56 @@
+name: My Screen
+content:
+  type: EdgeLayout
+  components:
+    - component:
+        type: HtmlContent
+        content: "Header"
+      constraints:
+        edge: TOP
+    - component:
+        type: HtmlContent
+        content: "Footer"
+      constraints:
+        edge: BOTTOM
+    - component:
+        type: FlowLayout
+        components:
+          - component:
+              type: HtmlContent
+              content: "First Column"
+            constraints:
+              md: 12
+              lg: 4
+          - component:
+              type: HtmlContent
+              content: "Second Column"
+            constraints:
+              md:
+                span: 12
+              lg:
+                span: 4
+                order: 2
+          - component:
+              type: HtmlContent
+              content: "Third Column"
+            constraints:
+              md:
+                span: 12
+              lg:
+                span: 4
+                order: 1
+      constraints:
+        edge: CENTER
+    - component:
+        type: FlowLayout
+        columnWidth: 12 # for all sizes, or {md: 12, lg: 6, ...}
+        components:
+          - component:
+              type: HtmlContent
+              content: "One"
+          - component:
+              type: HtmlContent
+              content: "Two"
+          - component:
+              type: HtmlContent
+              content: "Three"

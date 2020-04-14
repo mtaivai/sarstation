@@ -1,68 +1,132 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Specifications overview
 
-## Available Scripts
+Note: this document may contain [PlantUML](https://plantuml.com) diagrams. IntelliJ / Webstorm users may
+want to install PlantUML Integration plugin as well as Graphviz to display them
+correctly.
+* See [https://plantuml.com]
+* To download Graphviz: [https://www.graphviz.org/download/] 
+(Please note that [some Graphviz versions may not work](https://plantuml.com/graphviz-dot))
 
-In the project directory, you can run:
+We have [screens](#screen)
 
-### `npm start`
+## <a name="screen"></a> Screen
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+@startuml
+abstract class Component {
+    id: String
+}
 
-### `npm test`
+Component "0..1 parent" --> Component
+note on link
+    Component knows its parent, but not necessarily about
+    its children (unless it's a Container)
+end note
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+abstract class Container
+Container --|> Component
+Container "1 parent" o-- "{ordered} ~* component" Component
+note on link
+    Container (parent) may contain 0..n
+    components (children) and the relationship
+    is navigable in both directions. Note that
+    the association is created using intermediate
+    ContainedComponent association class
+end note
+(Container, Component) .. ContainedComponent
 
-### `npm run build`
+abstract class ContainedComponent {
+    component: Component
+    constrants: Object
+}
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+class Screen {
+    name: String
+    id: String
+}
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Screen o--> "0..1 content" Component
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+abstract class Layout {
+}
+Layout --|> Container
 
-### `npm run eject`
+abstract class LayoutConstraints {
+    screenSize
+}
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+class EdgeLayout {
+}
+EdgeLayout --|> Layout
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+class EdgeLayoutConstraints {
+    side: Edge
+}
+EdgeLayoutConstraints --|> LayoutConstraints
+enum Edge {
+    TOP, RIGHT, BOTTOM, LEFT, CENTER
+}
+together {
+    class EdgeLayout
+    class EdgeLayoutConstraints
+    enum Edge
+}
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+class AbsoluteLayout {
+}
+AbsoluteLayout --|> Layout
+class AbsoluteLayoutConstraints {
+    x
+    y
+    z
+}
+AbsoluteLayoutConstraints --|> LayoutConstraints
+together {
+    class AbsoluteLayout
+    class AbsoluteLayoutConstraints
+}
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+class FlowLayout {
+}
+FlowLayout --|> Layout
+class FlowLayoutConstraints {
+    width: Integer?
+    span: Integer?
+}
+FlowLayoutConstraints --|> LayoutConstraints
+together {
+    class FlowLayout
+    enum FlowDirection
+    class FlowLayoutConstraints
+}
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+@enduml
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+An example screen with yaml syntax:
+```
+name: My Screen
+content: 
+  type: EdgeLayout
+  components:
+  - component: 
+      type: HtmlContent
+      content: "Hello there!"
+    constraints:
+      edge: TOP
+  - component:
+      type: FlowLayout
+      components:
+      - component:
+          type: HtmlContent
+          content: "Content goes here"
+        constraints:
+        - md: 
+           width: 12
+        - lg:
+           width: 8
+    constraints:
+      edge: CENTER
+  
+```
 
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
