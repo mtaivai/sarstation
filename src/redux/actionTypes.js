@@ -1,0 +1,3 @@
+export const REQUEST_SCREEN = "REQUEST_SCREEN";
+export const RECEIVE_SCREEN = "RECEIVE_SCREEN";
+export const SET_FILTER = "SET_FILTER";
