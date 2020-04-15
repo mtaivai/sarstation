@@ -1,0 +1,49 @@
+syntax: vssd 0.1
+name: My Screen
+# Note that Container-Component association class "ContainedComponent" is now flattened to "constraints"
+# property of components
+content:
+  type: EdgeLayout
+  components:
+    - type: HtmlContent
+      content: "Header"
+      layoutConstraints:
+        edge: TOP
+    - type: HtmlContent
+      content: "Footer"
+      layoutConstraints:
+        edge: BOTTOM
+    - type: FlowLayout
+      components:
+        - type: HtmlContent
+          content: "First Column"
+          layoutConstraints:
+            md: 12
+            lg: 4
+        - type: HtmlContent
+          content: "Second Column"
+          layoutConstraints:
+            md:
+              span: 12
+            lg:
+              span: 4
+              order: 2
+        - type: HtmlContent
+          content: "Third Column"
+          layoutConstraints:
+            md:
+              span: 12
+            lg:
+              span: 4
+              order: 1
+      layoutConstraints:
+        edge: CENTER
+    - type: FlowLayout
+      columnWidth: 12 # for all sizes, or {md: 12, lg: 6, ...}
+      components:
+        - type: HtmlContent
+          content: "One"
+        - type: HtmlContent
+          content: "Two"
+        - type: HtmlContent
+          content: "Three"

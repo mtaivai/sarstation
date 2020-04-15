@@ -20,6 +20,12 @@ const defaultCreateChildElement = createComponentByType;
 //
 // dragHover
 // dragCanDrop
+/**
+ *
+ * @param props
+ * @param handlers
+ * @returns {[]}
+ */
 export function createChildren(props, handlers) {
 
     if (typeof handlers === "function") {
@@ -42,9 +48,8 @@ export function createChildren(props, handlers) {
 
 
         let childIndex = 0;
-        for (const containedComponent of props["components"]) {
-            const comp = containedComponent.component;
-            const constraints = containedComponent.constraints;
+        for (const comp of props["components"]) {
+            const constraints = comp.layoutConstraints;
             const componentId = comp["@id"];
             const childKey = childIndex;
 

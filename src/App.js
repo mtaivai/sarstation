@@ -3,14 +3,14 @@ import React, { useState, useCallback, useEffect } from 'react';
 import './App.css';
 import Screen from "./components/Screen.js";
 import {loadingScreen} from "./components/Loading.js";
-import {fetchScreenIfNeeded} from "./redux/actions";
+import {fetchScreenIfNeeded} from "./features/screens/screenActions";
 import { useDispatch, useSelector } from 'react-redux'
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
-    //const [screen, setScreen] = useState(null);
+    const screen = useSelector(state => state.screens.screen);
+    //const fetching = useSelector(state => state.screens.fetching);
     //const [fetchStatus, setFetchStatus] = useState(0);
 
     const dispatch = useDispatch()
@@ -24,7 +24,7 @@ function App() {
 
 
     useEffect(() => {
-        if ((screen === null || typeof screen === "undefined") && !fetching) {
+        if (screen === null || typeof screen === "undefined") {
             // Start fetching
             dispatch(fetchScreenIfNeeded());
         }
@@ -39,8 +39,7 @@ function App() {
     //
     // fetchScreen();
 
-    const screen = useSelector(state => state.screens.screen);
-    const fetching = useSelector(state => state.screens.fetching);
+
 
     console.log("App", screen);
 
