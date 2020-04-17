@@ -1,13 +1,14 @@
 import React from "react";
 import {createChildren} from "./Container.js";
 import Container from 'react-bootstrap/Container';
-import Col from "react-bootstrap/Col";
 
 import "./EdgeLayout.scss";
 
 function EdgeLayout(props) {
 
-    //props.edge;
+    const children = createChildren(props,{} );
+
+    console.log("All children:", children);
 
     const edgeChildren = {
         top: [],
@@ -17,36 +18,37 @@ function EdgeLayout(props) {
         center: []
     };
 
-    const children = createChildren(props,{
-        childElementCreated: (childElement, childProps, constraints) => {
-            let edge = (constraints != null && typeof constraints !== undefined) ? constraints["edge"] : null;
-            if (edge !== null && typeof edge !== "undefined") {
-                edge = edge.toLowerCase();
-            } else {
-                edge = "center";
-            }
-            switch (edge) {
-                case "top":
-                    edgeChildren.top.push(childElement);
-                    break;
-                case "right":
-                    edgeChildren.right.push(childElement);
-                    break;
-                case "bottom":
-                    edgeChildren.bottom.push(childElement);
-                    break;
-                case "left":
-                    edgeChildren.left.push(childElement);
-                    break;
-                case "center":
-                default:
-                    edgeChildren.center.push(childElement);
-                    break;
-
-            }
+    for (const child of children) {
+        const props = child.properties;
+        const childElement = child.element;
+        const constraints = props.layoutConstraints;
+        let edge = (constraints != null && typeof constraints !== undefined) ? constraints["edge"] : null;
+        if (edge !== null && typeof edge !== "undefined") {
+            edge = edge.toLowerCase();
+        } else {
+            edge = "center";
+        }
+        switch (edge) {
+            case "top":
+                edgeChildren.top.push(childElement);
+                break;
+            case "right":
+                edgeChildren.right.push(childElement);
+                break;
+            case "bottom":
+                edgeChildren.bottom.push(childElement);
+                break;
+            case "left":
+                edgeChildren.left.push(childElement);
+                break;
+            case "center":
+            default:
+                edgeChildren.center.push(childElement);
+                break;
 
         }
-    } );
+    }
+
 
     return (
         <div className={"EdgeLayout"}>

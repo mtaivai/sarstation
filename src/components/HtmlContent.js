@@ -4,20 +4,9 @@ import {mergeClassNames} from "../util";
 
 export default function HtmlContent(props) {
 
-    const {content, editorSite} = props;
-
-
-    const editMode = false;
-    // useEffect(() => {
-    //     editorSite.isEditMode();
-    // }, []);
-    // const editMode = editorSite.isEditMode();
-
-    //const [editMode, setEditMode] = useState(false);
+    const {content, editMode} = props;
 
     //props.editorSite.addEditMenuItem("Say hello", () => setEditMode(!editMode));
-
-    console.log("EM", editMode);
 
     const handleEditorChange = (newContent, editor) => {
         console.log('Content was updated:', newContent);

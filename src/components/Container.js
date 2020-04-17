@@ -5,9 +5,8 @@ import {useDrag} from "react-dnd";
 import React from "react";
 import ComponentWrapper from "./ComponentWrapper";
 import "./Container.scss"
-import {firstNonNull, orElseGet} from "../util";
+import {firstNonNull, orElseGet, resolveIndirect} from "../util";
 
-const defaultCreateChildElement = createComponentByType;
 
 // getChildProperties
 //   A function returning an object. Function gets default properties as its first parameter.
@@ -16,7 +15,7 @@ const defaultCreateChildElement = createComponentByType;
 //   Create a child element (React component) from properties
 // childElementCreated(childElement, childProperties)
 //
-// createOuterChildComponent (childElement, childProperties, constraints)
+// createOuterChildComponent (childElement, childProperties)
 //   Create contained component (wrapper) for the child with container constraints
 //
 // dragHover
@@ -25,7 +24,7 @@ const defaultCreateChildElement = createComponentByType;
  *
  * @param props
  * @param handlers
- * @returns {[]}
+ * @returns a list of objects [{element:..., properties:{...}}]
  */
 export function createChildren(props, handlers) {
 
@@ -40,16 +39,6 @@ export function createChildren(props, handlers) {
     let { components, templateData, id: zoneId } = props;
 
     components = orElseGet(components, () => []);
-
-    const getChildProperties = handlers["getChildProperties"];
-
-    let createChildElement = handlers["createChildElement"];
-    if (createChildElement === null || typeof createChildElement === "undefined") {
-        createChildElement = defaultCreateChildElement;
-    }
-    const childElementCreated = handlers["childElementCreated"];
-    const createOuterChildComponent = handlers["createOuterChildComponent"];
-
 
     let childIndex = 0;
 
@@ -67,21 +56,24 @@ export function createChildren(props, handlers) {
         const componentsInZone = templateData.zoneComponents[zoneId];
         if (componentsInZone !== null && typeof componentsInZone !== "undefined") {
             for (const c of componentsInZone) {
-
-                const {props, component} = c;
+                const props = {...c}
                 const componentId = props["@id"];
-                allChildren.push({childIndex, componentId, props, component});
-
+                allChildren.push({childIndex, componentId, props});
                 childIndex++;
             }
         }
     }
 
+    let createChildElement = handlers["createChildElement"];
+    if (createChildElement === null || typeof createChildElement === "undefined") {
+        createChildElement = createComponentByType;
+    }
+    const getChildProperties = handlers["getChildProperties"];
+    const createOuterChildComponent = handlers["createOuterChildComponent"];
+
     for (const child of allChildren) {
 
         const {props, componentId, childIndex} = child;
-
-        const constraints = props.layoutConstraints;
 
         const childKey = firstNonNull(props.key, componentId, childIndex);
 
@@ -93,62 +85,39 @@ export function createChildren(props, handlers) {
         }
 
         if (getChildProperties !== null && typeof getChildProperties === "function") {
-            childProps = getChildProperties(childProps, constraints);
+            childProps = getChildProperties(childProps);
         }
 
-        let elem = child.component;
-        if (elem === null || typeof elem === "undefined") {
-            // TODO add editor site
-            console.warn("TODO add editor site like in Screen");
-            elem = createChildElement(childProps, constraints);
-            if (childElementCreated !== null && typeof childElementCreated !== "undefined") {
-                childElementCreated(elem, childProps, constraints);
-            }
-        }
-
-        elem = (<ComponentWrapper
+        let wrapperElement = <ComponentWrapper
             key={childKey}
+            createChildElement={createChildElement}
+            childElementCreated={handlers.childElementCreated}
             dragHover={handlers.dragHover}
             dragCanDrop={handlers.dragCanDrop}
             componentId={componentId}
             childIndex={childIndex}
-            componentProps={childProps}>
-            {elem}
-        </ComponentWrapper>);
+            componentProps={childProps}/>;
 
         if (createOuterChildComponent !== null && typeof createOuterChildComponent === "function") {
-            elem = createOuterChildComponent(elem, childProps, constraints);
+            wrapperElement = createOuterChildComponent(wrapperElement, childProps);
         }
 
-        children.push(elem);
+        children.push({element: wrapperElement, properties: childProps});
     }
 
-    // // If we are a template / layout and there are ready created components to be populated,
-    // // populate them now:
-    // if (zoneId && templateData && templateData.zoneComponents) {
-    //     const componentsInZone = templateData.zoneComponents[zoneId];
-    //     if (componentsInZone !== null && typeof componentsInZone !== "undefined") {
-    //         let childIndex = 0;
-    //         for (const c of componentsInZone) {
-    //             const componentId = c["@id"];
-    //             let elem = (<ComponentWrapper
-    //                 key={firstNonNull(componentId, childIndex)}
-    //                 dragHover={handlers.dragHover}
-    //                 dragCanDrop={handlers.dragCanDrop}
-    //                 componentId={componentId}
-    //                 childIndex={childIndex}>
-    //                 {c}</ComponentWrapper>);
-    //             if (createOuterChildComponent !== null && typeof createOuterChildComponent === "function") {
-    //                 elem = createOuterChildComponent(elem, c.props, c.constraints);
-    //             }
-    //
-    //             children.push(elem);
-    //
-    //             childIndex++;
-    //         }
-    //     }
-    // }
-    return children;
+    const collect = handlers["collect"];
+    if (collect !== null && typeof collect !== "undefined") {
+        const collected = [];
+        for (const child of children) {
+            const result = collect(child);
+            if (result !== null && typeof result !== "undefined") {
+                collected.push(result);
+            }
+        }
+        return collected;
+    } else {
+        return children;
+    }
 
 }
 

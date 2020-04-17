@@ -5,6 +5,7 @@ import "./ComponentWrapper.scss"
 
 import {DropdownButton, Dropdown} from "react-bootstrap";
 import {orElse, resolveIndirect} from "../util";
+import {createComponentByType} from "./Component";
 
 let activeEditorMenu = null;
 
@@ -15,14 +16,12 @@ export default function ComponentWrapper(props) {
     const [ lockHover, setLockHover ] = useState(null);
 
     const [ editMode, setEditMode ] = useState(false);
-    console.log("EDITMODE:", editMode);
-
 
     const ref = useRef(null);
 
     // This is a drag source, but also a drop target for ordering components inside of
     // a container
-   const [{isOver, canDrop}, drop] = useDrop({
+    const [{isOver, canDrop}, drop] = useDrop({
         accept: "Component",
         hover: (item, monitor) => {
 
@@ -121,9 +120,22 @@ export default function ComponentWrapper(props) {
 
                 <Dropdown.Menu alignRight>
                     {dropdownItems}
+                    <Dropdown.Item onSelect={(eventKey, event) => {
+                        setEditMode(true);
+                    }}>M</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         );
+    }
+
+    const {componentProps, createChildElement, childElementCreated} = props;
+
+    // Finally create the child component:
+    // TODO add editor site?
+    //console.warn("TODO add editor site like in Screen");
+    const childElement = createChildElement({...componentProps, editMode});
+    if (childElementCreated !== null && typeof childElementCreated !== "undefined") {
+        childElementCreated(childElement, componentProps);
     }
 
 
@@ -138,7 +150,7 @@ export default function ComponentWrapper(props) {
                 {editorMenu}
             </div>
             <div className={"Body"}>
-                {props.children}
+                {childElement}
             </div>
         </div>
     )

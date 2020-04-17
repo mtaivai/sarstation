@@ -7,7 +7,6 @@ import configureStore from './store'
 import './index.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import EditTest from "./EditTest";
 
 const store = configureStore()
 

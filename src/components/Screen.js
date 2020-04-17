@@ -48,9 +48,15 @@ function createComponents(content, enrichProps, factory, collector) {
 
 export default function Screen(props) {
 
-    // Do we have layout?
     const {content, layout: layoutId} = props;
 
+    /*
+      Screen
+        RootLayout id="__root"
+          0..n components
+     */
+
+    // Do we have layout?
     let resolvedLayoutId = resolveIndirectToString(layoutId, "").trim();
     const needsLayout = resolvedLayoutId.length > 0;
 
@@ -66,42 +72,50 @@ export default function Screen(props) {
 
     const components = [];
 
-
     if (needsLayout /*&& layout !== null && typeof layout !== "undefined"*/) {
 
-        // Collect screen components and render them to a layout
-        console.log("LAYOUT", layout);
-
         if (layout) {
-            // Layout already loaded
+            // Layout already loaded. Now collect components to be inserted from the screen
+            // instance for later instantiation in the corresponding container:
 
-            // Collect components first (M(zoneId, []component))
-            // These will be displayed "lazily" when the template is rendered, hence
-            // following returns null from its collector
             const templateData = { zoneComponents: {} };
 
-
-
-            createComponents(content,
-                (props) => {
-                    // Add editor site
-                    return {...props, editorSite: new EditorSite(props)};
-                },
-                null,
-                (component, componentProps) => {
-                    const {container: dropZone} = componentProps;
-                    // TODO wtf is dropzone here?
-                    if (templateData.zoneComponents[dropZone] == null ||
-                        typeof templateData.zoneComponents[dropZone] === "undefined") {
-                        templateData.zoneComponents[dropZone] = [];
+            // zoneComponents
+            // zoneId: [{component descriptor}, ...]
+            const contentArray = Array.isArray(content) ? content : [content];
+            for (const comp of contentArray) {
+                const zone = orElse(comp.container, "").trim();
+                if (zone !== null && typeof zone !== "undefined") {
+                    let componentList = templateData.zoneComponents[zone];
+                    if (componentList === null || typeof componentList === "undefined") {
+                        templateData.zoneComponents[zone] = componentList = [];
                     }
-                    templateData.zoneComponents[dropZone].push(
-                        {component, props: componentProps});
+                    componentList.push(comp);
+                }
+            }
 
-                    return null;
-            });
+            //
+            //
+            //
+            // createComponents(content,
+            //     (props) => {
+            //         // Add editor site
+            //         return {...props, editorSite: new EditorSite(props)};
+            //     },
+            //     null,
+            //     (component, componentProps) => {
+            //         const {container: dropZone} = componentProps;
+            //         // TODO wtf is dropzone here?
+            //         if (templateData.zoneComponents[dropZone] == null ||
+            //             typeof templateData.zoneComponents[dropZone] === "undefined") {
+            //             templateData.zoneComponents[dropZone] = [];
+            //         }
+            //         templateData.zoneComponents[dropZone].push(
+            //             {component, props: componentProps});
+            //
+            //         return null;
+            // });
 
-            // console.log("dropZoneToComponentsMap:", dropZoneToComponentsMap);
 
             // Create layout components
             components.push(createComponents(layout.content, null, (componentProps) => {

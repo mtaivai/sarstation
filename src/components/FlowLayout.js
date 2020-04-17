@@ -59,7 +59,9 @@ function FlowLayout(props) {
     //         constraints: {}
     //     });
     const children = createChildren(props, {
-        createOuterChildComponent: (child, childProps, constraints) => {
+        createOuterChildComponent: (child, childProps) => {
+
+            const constraints = childProps.layoutConstraints;
 
             const colProps = {};
             for (const deviceSize of deviceSizes) {
@@ -97,7 +99,8 @@ function FlowLayout(props) {
                 //setDropZoneAfterChildIndex(targetProps.childIndex);
             }
 
-        }
+        },
+        collect: (c) => c.element
     });
 
     // Set row constraints:
