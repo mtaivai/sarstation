@@ -1,34 +1,34 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-import './App.css';
+import './App.scss';
 import Screen from "./components/Screen.js";
 import {loadingScreen} from "./components/Loading.js";
 import {fetchScreenIfNeeded} from "./features/screens/screenActions";
 import { useDispatch, useSelector } from 'react-redux'
+import {orElse} from "./util";
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function App() {
 
-    const screen = useSelector(state => state.screens.screen);
+    const screenId = "screen1";
+
+    const screen = useSelector(state => orElse(state.screens.entities[screenId], {}).screen);
     //const fetching = useSelector(state => state.screens.fetching);
     //const [fetchStatus, setFetchStatus] = useState(0);
 
     const dispatch = useDispatch()
 
 
-    // TODO or is following better?
+    // Hmm... or is following better?
     // const { screen, fetching } = useSelector(state => ({
     //     screen: state.screen,
     //     fetching: state.fetching,
     // }), shallowEqual);
 
 
-    useEffect(() => {
-        if (screen === null || typeof screen === "undefined") {
-            // Start fetching
-            dispatch(fetchScreenIfNeeded());
-        }
-    }, [dispatch]);
+
 
 
     // const fetchScreen = useCallback(
@@ -40,6 +40,13 @@ function App() {
     // fetchScreen();
 
 
+    //const screen = screenEntity ? screenEntity.screen : null;
+
+    useEffect(() => {
+        //if (!screen && (!screenEntity || screenEntity.loading === "idle")) {
+            dispatch(fetchScreenIfNeeded(screenId));
+        //}
+    }, [dispatch]);
 
     console.log("App", screen);
 

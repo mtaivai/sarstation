@@ -1,0 +1,15 @@
+@import "~bootstrap/scss/bootstrap";
+
+.Screen {
+
+    .ContainerArea {
+        min-width: 0;
+        min-height: 0;
+    }
+
+    .ContainerArea:HOVER {
+    }
+
+    .DropZone {
+    }
+}

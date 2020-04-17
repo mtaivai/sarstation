@@ -5,33 +5,44 @@ import {fetchScreenById} from "./screenActions";
 const screensSlice = createSlice({
     name: 'screens',
     initialState: {
-        screen: null,
-        loading: 'idle',
-        currentRequestId: undefined,
+        // Entities is M(id -> screen) and contains both, layouts and entities. Id's are prefixed
+        // with 's/' for screen and with 'l/' for layout!
+        entities: {},
         error: null
     },
     reducers: {},
     extraReducers: {
         [fetchScreenById.pending]: (state, action) => {
-            if (state.loading === 'idle') {
-                state.loading = 'pending'
-                state.currentRequestId = action.meta.requestId
+            const { arg:screenId } = action.meta
+            const entity = state.entities[screenId];
+            if (!entity || !entity.loading || entity.loading === "idle") {
+                state.entities[screenId] = {
+                    ...entity,
+                    loading: "pending",
+                    currentRequestId: action.meta.requestId
+                }
+
             }
         },
         [fetchScreenById.fulfilled]: (state, action) => {
-            const { requestId } = action.meta
-            if (state.loading === 'pending' && state.currentRequestId === requestId) {
-                state.loading = 'idle'
-                state.screen = action.payload
-                state.currentRequestId = undefined
+            const { requestId, arg:screenId } = action.meta
+            const entity = state.entities[screenId];
+
+            if (entity && entity.loading === 'pending' && entity.currentRequestId === requestId) {
+                entity.loading = 'idle'
+                entity.screen = action.payload
+                entity.currentRequestId = undefined
             }
         },
         [fetchScreenById.rejected]: (state, action) => {
-            const { requestId } = action.meta
-            if (state.loading === 'pending' && state.currentRequestId === requestId) {
-                state.loading = 'idle'
-                state.error = action.error
-                state.currentRequestId = undefined
+            const { requestId, arg:screenId } = action.meta
+
+            const entity = state.entities[screenId];
+
+            if (entity && entity.loading === 'pending' && entity.currentRequestId === requestId) {
+                entity.loading = 'idle'
+                entity.error = action.error
+                entity.currentRequestId = undefined
             }
         }
     }

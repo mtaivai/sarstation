@@ -65,7 +65,7 @@ function FlowLayout(props) {
             for (const deviceSize of deviceSizes) {
                 setColumnLayoutConstraints(constraints, colProps, deviceSize);
             }
-            colProps.key = child.key;
+            //colProps.key = child.key;
 
             const elems = [(<Col {...colProps}>{child}</Col>)];
 
@@ -156,7 +156,7 @@ function FlowLayout(props) {
 
     drop(ref);
     return (
-        <Container fluid ref={ref}>
+        <Container className={"FlowLayout"} fluid ref={ref}>
             <Row className={"ContainerArea"} {...rowProps}>
                 {children}
             </Row>

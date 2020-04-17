@@ -1,9 +1,0 @@
-
-
-.Draggable {
-    cursor: move;
-}
-.Draggable.Dragging {
-    opacity: 0.5;
-    background-color: rgba(200, 230, 255, 0.5);
-}

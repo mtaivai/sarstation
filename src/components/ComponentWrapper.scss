@@ -1,0 +1,21 @@
+.ComponentWrapper {
+
+  .ComponentMenu {
+    //display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  &:hover {
+
+    border: 1px solid red;
+
+    .ComponentMenu {
+      display: block;
+    }
+
+  }
+  .Body {
+
+  }
+}

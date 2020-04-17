@@ -3,7 +3,7 @@ import {createChildren} from "./Container.js";
 import Container from 'react-bootstrap/Container';
 import Col from "react-bootstrap/Col";
 
-import "./EdgeLayout.css";
+import "./EdgeLayout.scss";
 
 function EdgeLayout(props) {
 
@@ -19,7 +19,6 @@ function EdgeLayout(props) {
 
     const children = createChildren(props,{
         childElementCreated: (childElement, childProps, constraints) => {
-            console.log("childElementCreated", childElement, childProps, constraints);
             let edge = (constraints != null && typeof constraints !== undefined) ? constraints["edge"] : null;
             if (edge !== null && typeof edge !== "undefined") {
                 edge = edge.toLowerCase();
@@ -48,7 +47,6 @@ function EdgeLayout(props) {
 
         }
     } );
-
 
     return (
         <div className={"EdgeLayout"}>
