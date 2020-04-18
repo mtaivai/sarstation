@@ -1,0 +1,17 @@
+# An example of screen using a base layout
+
+name: "My Screen"
+layout: "layouts/layout1"
+content:
+
+  - type: "HtmlContent"
+    container: "header"
+    content: "Header content here"
+  - type: "HtmlContent"
+    container: "footer"
+    content: "Footer content here"
+  - type: "HtmlContent"
+    container: "body"
+    content: >
+      This is my
+      <strong>HTML</strong> formatted content here!

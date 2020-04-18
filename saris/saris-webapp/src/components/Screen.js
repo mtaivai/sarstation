@@ -8,7 +8,6 @@ import {firstNonNull, orElse, resolveIndirectToString} from "../util";
 import {loadingScreen} from "./Loading";
 
 import "./Screen.scss"
-import EditorSite from "./EditorSite";
 
 function createComponents(content, enrichProps, factory, collector) {
     if (enrichProps === null || typeof enrichProps === "undefined") {

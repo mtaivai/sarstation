@@ -8,6 +8,9 @@ import {orElse, resolveIndirect} from "../util";
 import TextField from "./editor/TextField";
 import HtmlEditorField from "./editor/HtmlEditorField";
 
+import "./ModalEditor.scss"
+
+
 const customStyles = {
     content : {
         top                   : '50%',
@@ -131,17 +134,19 @@ export default function ModalEditor(props) {
         subtitle.style.color = '#f00';
     }
 
-    function saveAndCloseModal(){
+    function closeModal(){
         if (onClose !== null && typeof onClose !== "undefined") {
-
-            console.log("Save", isModified, fieldValues);
-            if (isModified && saveData !== null && typeof saveData !== "undefined") {
-                saveData(fieldValues);
-            }
-
             onClose();
-            setIsOpen(false);
         }
+        setIsOpen(false);
+    }
+
+    function saveAndCloseModal(){
+        console.log("Save", isModified, fieldValues);
+        if (isModified && saveData !== null && typeof saveData !== "undefined") {
+            saveData(fieldValues);
+        }
+        closeModal();
     }
 
     return (
@@ -155,16 +160,26 @@ export default function ModalEditor(props) {
 
             >
 
-                <h2 ref={_subtitle => (subtitle = _subtitle)}>Hello</h2>
+                <div className={"EditorSheet"}>
 
-                <Form>
-                    {editorFields}
-                    <Button variant="primary" type="button" onClick={ saveAndCloseModal } disabled={!isModified}>
-                        Tallenna
-                    </Button>
+                    <h2 ref={_subtitle => (subtitle = _subtitle)}>Hello</h2>
 
-                </Form>
+                    <Form className={"EditorForm Form"}>
+                        {editorFields}
 
+                        <div className={"FormActions"}>
+                            <Button variant="secondary" type="button" onClick={ saveAndCloseModal } disabled={true}>
+                                Jotain muuta
+                            </Button>
+                            <Button variant="primary" type="button" onClick={ saveAndCloseModal } disabled={!isModified}>
+                                Tallenna
+                            </Button>
+                            <Button variant="light" type="button" onClick={ saveAndCloseModal } >
+                                Peruuta
+                            </Button>
+                        </div>
+                    </Form>
+                </div>
 
 
 

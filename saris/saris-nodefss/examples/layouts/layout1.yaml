@@ -1,0 +1,19 @@
+# An example of a fixed base layout without any presentational components
+name: Layout 1
+content:
+  type: EdgeLayout
+  components:
+    - type: FlowLayout
+      id: "header"
+      layoutConstraints:
+        edge: TOP
+    - type: FlowLayout
+      id: "footer"
+      layoutConstraints:
+        edge: BOTTOM
+    - type: FlowLayout
+      id: "body"
+      layoutConstraints:
+        edge: CENTER
+
+
