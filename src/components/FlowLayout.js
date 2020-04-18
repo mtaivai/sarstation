@@ -63,7 +63,7 @@ function FlowLayout(props) {
 
             const constraints = childProps.layoutConstraints;
 
-            const colProps = {};
+            const colProps = {key: childProps.key};
             for (const deviceSize of deviceSizes) {
                 setColumnLayoutConstraints(constraints, colProps, deviceSize);
             }

@@ -1,39 +1,48 @@
-import React, {useState, useEffect} from "react";
-import { Editor } from '@tinymce/tinymce-react';
+import React from "react";
+import PropTypes from "prop-types";
 import {mergeClassNames} from "../util";
+
+
+
+// HtmlContent.editorTypes = {
+//     content: string.isRequired,
+// };
+
+
+HtmlContent.propTypes = {
+    content: PropTypes.string,
+    editMode: PropTypes.bool,
+    describeData: PropTypes.func.isRequired
+}
 
 export default function HtmlContent(props) {
 
-    const {content, editMode} = props;
+    const {content, editMode, describeData} = props;
+
+    describeData(() => [
+        {
+            name: "content",
+            label: "Content",
+            type: "html"
+        }
+    ]);
+
+    // props.useEditor([
+    //     {
+    //         name: "content",
+    //         type: "html"
+    //     },
+    // ]);
 
     //props.editorSite.addEditMenuItem("Say hello", () => setEditMode(!editMode));
 
-    const handleEditorChange = (newContent, editor) => {
-        console.log('Content was updated:', newContent);
-    }
+    /*
 
-    if (editMode) {
-        return (
-            <Editor
-                initialValue={content}
-                init={{
-                    height: 500,
-                    menubar: false,
-                    plugins: [
-                        'advlist autolink lists link image charmap print preview anchor',
-                        'searchreplace visualblocks code fullscreen',
-                        'insertdatetime media table paste code help wordcount'
-                    ],
-                    toolbar:
-                        'undo redo | formatselect | bold italic backcolor | \
-                        alignleft aligncenter alignright alignjustify | \
-                        bullist numlist outdent indent | removeformat | help'
-                }}
-                onEditorChange={handleEditorChange}
-            />
-        )
-    } else {
-        return (<span className={mergeClassNames("HtmlContent", props.className)} dangerouslySetInnerHTML={{"__html": content}}/>);
-    }
+    content: { type: html }
+
+     */
+
+
+    return (<span className={mergeClassNames("HtmlContent", props.className)} dangerouslySetInnerHTML={{"__html": content}}/>);
 
 }

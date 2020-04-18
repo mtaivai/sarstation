@@ -3,19 +3,37 @@ import React, {useState, useRef} from "react";
 import {setDraggedItem} from "../Screens";
 import "./ComponentWrapper.scss"
 
-import {DropdownButton, Dropdown} from "react-bootstrap";
+import {DropdownButton, Dropdown, ButtonGroup, Button} from "react-bootstrap";
 import {orElse, resolveIndirect} from "../util";
 import {createComponentByType} from "./Component";
+import ModalEditor from "./ModalEditor";
+import {useDispatch, useSelector} from "react-redux";
+import PropTypes from "prop-types";
+import {findComponentHavingId, updateScreenComponent} from "../features/screens/screenActions";
 
 let activeEditorMenu = null;
 
-// TODO rename me... I'm no longer just for drag'n'drop...
+ComponentWrapper.propTypes = {
+    componentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    componentProps: PropTypes.object.isRequired,
+    screenId: PropTypes.string.isRequired,
+    dragHover: PropTypes.func,
+    dragCanDrop: PropTypes.func,
+    createChildElement: PropTypes.func.isRequired,
+    childElementCreated: PropTypes.func
+}
 export default function ComponentWrapper(props) {
+
+    const {componentId, componentProps, screenId, dragHover, dragCanDrop, createChildElement, childElementCreated } = props;
+
+    const [ editMode, setEditMode ] = useState(false);
 
     const [ hover, setHover ] = useState(false);
     const [ lockHover, setLockHover ] = useState(null);
 
-    const [ editMode, setEditMode ] = useState(false);
+    const dispatch = useDispatch();
+
+    const screen = useSelector(state => orElse(state.screens.entities[screenId], {}).screen);
 
     const ref = useRef(null);
 
@@ -31,12 +49,12 @@ export default function ComponentWrapper(props) {
 
             const hoverBoundingRect = ref.current.getBoundingClientRect()
 
-            if (typeof props.dragHover === "function") {
-                props.dragHover(item, monitor, props, hoverBoundingRect);
+            if (typeof dragHover === "function") {
+                dragHover(item, monitor, props, hoverBoundingRect);
             }
 
         },
-        canDrop: (i, m) => typeof props.dragCanDrop === "function" ? props.dragCanDrop(i, m) : true,
+        canDrop: (i, m) => typeof dragCanDrop === "function" ? dragCanDrop(i, m) : true,
         drop: () => {
                console.log("DROP1");
                },
@@ -46,7 +64,7 @@ export default function ComponentWrapper(props) {
         })
     })
 
-    const dragItem = { type: "Component", componentId: props.componentId };
+    const dragItem = { type: "Component", componentId};
 
     const [{isDragging}, drag] = useDrag({
         item: dragItem,
@@ -85,7 +103,8 @@ export default function ComponentWrapper(props) {
         }
     };
 
-    const editorSite = resolveIndirect(props.componentProps.editorSite);
+    // TODO we don't have editorSite any more
+    const editorSite = resolveIndirect(componentProps.editorSite);
     if (editorSite !== null && typeof editorSite !== "undefined"){
         editorSite.isEditMode = () => editMode;
         editorSite.setEditMode = setEditMode;
@@ -113,45 +132,91 @@ export default function ComponentWrapper(props) {
         }
 
         editorMenu = (
-            <Dropdown onToggle={dropdownOnToggle} >
-                <Dropdown.Toggle size={"sm"}  variant="success" id="dropdown-basic">
-                    Dropdown Button
-                </Dropdown.Toggle>
+            <Dropdown as={ButtonGroup} onToggle={dropdownOnToggle} >
+
+                <Button variant={"primary"} size={"sm"}
+                    onClick={() => setEditMode(true)}>Edit</Button>
+                <Dropdown.Toggle split variant={"secondary"} size={"sm"} />
 
                 <Dropdown.Menu alignRight>
                     {dropdownItems}
                     <Dropdown.Item onSelect={(eventKey, event) => {
                         setEditMode(true);
-                    }}>M</Dropdown.Item>
+                    }}>Edit</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         );
     }
 
-    const {componentProps, createChildElement, childElementCreated} = props;
+    let dataDescription = {};
+
+    function describeData(description) {
+        if (description !== null && typeof description !== "undefined") {
+            dataDescription = description;
+        }
+        return dataDescription;
+    }
 
     // Finally create the child component:
     // TODO add editor site?
-    //console.warn("TODO add editor site like in Screen");
-    const childElement = createChildElement({...componentProps, editMode});
+    const childElement = createChildElement({...componentProps, editMode, describeData});
     if (childElementCreated !== null && typeof childElementCreated !== "undefined") {
         childElementCreated(childElement, componentProps);
     }
+
+    const editModeElements = [];
+    if (editMode) {
+
+
+
+        let currentContent = undefined;
+        function getCurrentData() {
+            if (currentContent === undefined) {
+                currentContent = findComponentHavingId(componentId, screen);
+            }
+            return currentContent;
+        }
+
+        function saveData(newData) {
+            console.log("Save data:", newData);
+
+            dispatch(updateScreenComponent(screenId, componentId, newData));
+
+        }
+
+
+
+        editModeElements.push(
+            <ModalEditor key={"modalEditor"}
+                         onClose={() => {setEditMode(false); setHover(false);}}
+                         targetProps={{...componentProps}}
+                         describeData={() => dataDescription}
+                         getCurrentData={ getCurrentData }
+                         saveData={ saveData }
+                         />
+            );
+    }
+
+    const onMouseEnter = (e) => { setHover(true); };
+    const onMouseLeave = () => { setHover(false); };
 
 
     return (
         <div
              ref={ref}
              style={isOver ? {border: "1px solid red"} : {}}
-             onMouseEnter={() => setHover(true) }
-             onMouseLeave={() => setHover(false) }
+             onMouseEnter={ onMouseEnter }
+             onMouseLeave={ onMouseLeave }
              className={"ComponentWrapper Draggable" + (isDragging ? " Dragging" : "")}>
-            <div className={"ComponentMenu"}>
-                {editorMenu}
+            <div className={"ComponentHeader"}>
+                <div className={"ComponentMenu"}>{editorMenu}</div>
             </div>
+
             <div className={"Body"}>
                 {childElement}
+                {editModeElements}
             </div>
+
         </div>
     )
 }

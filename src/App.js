@@ -43,15 +43,17 @@ function App() {
     //const screen = screenEntity ? screenEntity.screen : null;
 
     useEffect(() => {
+        console.log("App.fetching....");
         //if (!screen && (!screenEntity || screenEntity.loading === "idle")) {
             dispatch(fetchScreenIfNeeded(screenId));
         //}
-    }, [dispatch]);
+    }, [screen]);
 
     console.log("App", screen);
 
     if (screen) {
-        return (<Screen {...screen}/>);
+        const screenProps = {...screen, screenId};
+        return (<Screen {...screenProps}/>);
      } else {
         return loadingScreen();
      }

@@ -36,9 +36,11 @@ export function createChildren(props, handlers) {
     }
     const children = [];
 
-    let { components, templateData, id: zoneId } = props;
+    let { components, getTemplateData, id: zoneId, screenId } = props;
 
     components = orElseGet(components, () => []);
+
+    const templateData = (getTemplateData !== null && typeof getTemplateData === "function") ? getTemplateData() : null;
 
     let childIndex = 0;
 
@@ -77,11 +79,11 @@ export function createChildren(props, handlers) {
 
         const childKey = firstNonNull(props.key, componentId, childIndex);
 
-        let childProps = {...props, componentId, childIndex, key: childKey};
+        let childProps = {...props, componentId, childIndex, screenId, key: childKey};
 
         if (templateData !== null && typeof templateData !== "undefined") {
             // Pass the "templateData" to children:
-            childProps.templateData = templateData;
+            childProps.getTemplateData = getTemplateData;
         }
 
         if (getChildProperties !== null && typeof getChildProperties === "function") {
@@ -94,9 +96,10 @@ export function createChildren(props, handlers) {
             childElementCreated={handlers.childElementCreated}
             dragHover={handlers.dragHover}
             dragCanDrop={handlers.dragCanDrop}
-            componentId={componentId}
             childIndex={childIndex}
-            componentProps={childProps}/>;
+            componentId={componentId}
+            componentProps={childProps}
+            screenId={screenId} />;
 
         if (createOuterChildComponent !== null && typeof createOuterChildComponent === "function") {
             wrapperElement = createOuterChildComponent(wrapperElement, childProps);

@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import PropTypes from "prop-types";
 import {createComponentByType} from "./Component";
 import RootLayout from "./RootLayout";
 import {fetchScreenIfNeeded} from "../features/screens/screenActions";
@@ -46,9 +47,16 @@ function createComponents(content, enrichProps, factory, collector) {
     return components;
 }
 
+
+
+Screen.propTypes = {
+    layout: PropTypes.string.isRequired,
+    screenId: PropTypes.string.isRequired,
+    components: PropTypes.any.isRequired
+}
 export default function Screen(props) {
 
-    const {content, layout: layoutId} = props;
+    const {components, layout: layoutId, screenId} = props;
 
     /*
       Screen
@@ -70,7 +78,7 @@ export default function Screen(props) {
     }, [dispatch]);
 
 
-    const components = [];
+    const componentElements = [];
 
     if (needsLayout /*&& layout !== null && typeof layout !== "undefined"*/) {
 
@@ -82,8 +90,8 @@ export default function Screen(props) {
 
             // zoneComponents
             // zoneId: [{component descriptor}, ...]
-            const contentArray = Array.isArray(content) ? content : [content];
-            for (const comp of contentArray) {
+            const componentsArray = Array.isArray(components) ? components : [components];
+            for (const comp of componentsArray) {
                 const zone = orElse(comp.container, "").trim();
                 if (zone !== null && typeof zone !== "undefined") {
                     let componentList = templateData.zoneComponents[zone];
@@ -118,8 +126,9 @@ export default function Screen(props) {
 
 
             // Create layout components
-            components.push(createComponents(layout.content, null, (componentProps) => {
-                return createComponentByType({...componentProps, templateData});
+            componentElements.push(createComponents(layout.components,
+                (props) => {
+                return { ...props, screenId, getTemplateData: () => templateData };
             }));
 
             // TODO warning about unused components (i.e. without matching container / id pair)
@@ -130,14 +139,14 @@ export default function Screen(props) {
 
     } else {
         // Just render the screen
-        components.push(createComponents(content));
+        components.push(createComponents(components));
     }
 
 
     return (
         <div className={"Screen"}>
-            <RootLayout>
-                {components}
+            <RootLayout screenId={screenId}>
+                {componentElements}
             </RootLayout>
         </div>
     );
