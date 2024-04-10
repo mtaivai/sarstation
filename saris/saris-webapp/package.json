@@ -10,7 +10,7 @@
     "@tinymce/tinymce-react": "^3.5.0",
     "bootstrap": "^4.4.1",
     "js-yaml": "^3.13.1",
-    "node-sass": "^4.13.1",
+    "node-sass": "^9.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.0",
